@@ -4,7 +4,7 @@ RUN apt-get update -qq && apt-get install -y \
       libssl-dev \
       libcurl4-gnutls-dev
       
-RUN R -e "install.packages(c('httr', 'plumber'))"
+RUN R -e "install.packages(c('httr', 'plumber', 'RPostgres'))"
 
 COPY / /
 

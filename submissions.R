@@ -28,9 +28,11 @@ submitIssue <- function(title, body, priority, difficulty, author){
   qry <- paste0(
     "INSERT INTO submission(title, body, priority, difficulty, author, status) ",
     "VALUES ('", 
-    paste(title, body, priority, difficulty, author, "pending",  sep = "', '"),
+    paste(stringr::str_replace(c(title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
     "') RETURNING *;"
   )
+  
+  print(qry)
   
   info <- RPostgres::dbGetQuery(db_con, qry)
   
@@ -47,7 +49,7 @@ judgeIssue <- function(token, id, status, approver, note){
     "UPDATE submission ",
     "SET status = '", status,"', ",
     "approver = '", approver,"', ",
-    "note = '", note,"', ",
+    "note = '", stringr::str_replace_all(note, "'", "''"),"', ",
     "last_update = current_timestamp ",
     "WHERE id = ", id," RETURNING *;"
   )

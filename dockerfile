@@ -8,7 +8,7 @@ RUN apt-get update -qq && apt-get install -y \
       libcurl4-gnutls-dev \
       libpq5
       
-RUN R -e "install.packages(c('httr', 'jsonlite', 'plumber', 'RPostgres'))"
+RUN R -e "install.packages(c('httr', 'jsonlite', 'plumber', 'RPostgres', 'stringr'))"
 
 COPY / /
 

@@ -15,7 +15,7 @@
 # RPostgres::dbGetQuery(db_con, 'alter table submission add id serial;')
 # RPostgres::dbGetQuery(db_con, "alter table submission add created_on timestamp default current_timestamp")
 # RPostgres::dbGetQuery(db_con, "alter table submission add last_update timestamp default current_timestamp")
-RPostgres::dbReadTable(db_con, 'submission')
+# RPostgres::dbReadTable(db_con, 'submission')
 # RPostgres::dbRemoveTable(db_con, "submission")
 # 
 # test <- submitIssue('myTitle', 'myBody', 'myPriority', 'myDifficulty', 'ben')

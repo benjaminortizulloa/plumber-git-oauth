@@ -15,3 +15,12 @@ PG_AUTH = "postgres_important_string_connection"
 docker build -t plumber-test .
 docker run --rm -p 3000:3000 plumber-test
 ```
+
+### heroku launch
+
+```
+heroku apps
+heroku container:push web
+heroku container:release web
+heroku open
+```

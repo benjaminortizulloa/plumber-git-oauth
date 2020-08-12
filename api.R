@@ -21,7 +21,7 @@ gitOauth
 #' @param email
 getAuthorization
 
-#' @get /submitIssue title, body, priority, difficulty, author
+#' @post /submitIssue
 #' @param title
 #' @param body
 #' @param priority
@@ -29,10 +29,18 @@ getAuthorization
 #' @param author
 submitIssue
 
+#' @post /judgeIssue
+#' @param token
+#' @param id
+#' @param status
+#' @param approver
+#' @param note
+judgeIssue
 
+#' @get /issues
+#' @param status
+issues
 
 #' @serializer unboxedJSON
-#'@get /test
+#' @get /test
 sanityCheck
-
-

@@ -28,7 +28,7 @@ submitIssue <- function(title, body, priority, difficulty, author){
   qry <- paste0(
     "INSERT INTO submission(title, body, priority, difficulty, author, status) ",
     "VALUES ('", 
-    paste(stringr::str_replace(c(title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
+    paste(stringr::str_replace_all(c(title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
     "') RETURNING *;"
   )
   
@@ -58,7 +58,7 @@ judgeIssue <- function(token, id, status, approver, note){
   info <- list(info = info)
   
   if(status == 'approved'){
-    gitRes <- postIssue(token, info$title[1], info$body[1], info$priority[1], info$difficulty[1])
+    gitRes <- postIssue(token, info$info$title[1], info$info$body[1], info$info$priority[1], info$info$difficulty[1])
     info$gitRes <- gitRes
   }
   
@@ -83,6 +83,7 @@ issues <- function(status){
 postIssue <- function(token, title, body, priority, difficulty){
   print('postIssue')
   bdy <- jsonlite::toJSON(list(title = title, body = body, labels = c(priority, difficulty)), auto_unbox = T)
+  print(bdy)
   url = "https://api.github.com/repos/BenjaminOrtizUlloa/ExploreGitAPI/issues"
   tkn = paste('token', token)
   postres <- httr::POST(url, httr::add_headers(Authorization = tkn), body = bdy)

@@ -1,4 +1,6 @@
 # submissions <- tibble::tibble(
+#   owner = character(0),
+#   repo = character(0),
 #   title = character(0),
 #   body = character(0),
 #   priority = character(0),
@@ -8,7 +10,7 @@
 #   approver = character(0),
 #   note = character(0)
 # )
-
+# 
 # db_con <- connect2DB()
 # RPostgres::dbListTables(db_con)
 # RPostgres::dbWriteTable(db_con, 'submission', submissions)
@@ -18,17 +20,17 @@
 # RPostgres::dbReadTable(db_con, 'submission')
 # RPostgres::dbRemoveTable(db_con, "submission")
 # 
-# test <- submitIssue('myTitle', 'myBody', 'myPriority', 'myDifficulty', 'ben')
-# test2 <- judgeIssue(1, 'rejected', 'benjamin', 'awful id')
+# test <- submitIssue("benjaminortizulloa", "ExploreGitAPI", 'myTitle', 'myBody', 'myPriority', 'myDifficulty', 'beemyfriend')
+# test2 <- judgeIssue('36d5c2d9b392749d5995938d7c39031b577cc42d', 1, 'approved', 'benjaminortizulloa', 'approvingnow')
 
 # submit issue for admins to approve
-submitIssue <- function(title, body, priority, difficulty, author){
+submitIssue <- function(owner, repo, title, body, priority, difficulty, author){
   db_con <- connect2DB()
   
   qry <- paste0(
-    "INSERT INTO submission(title, body, priority, difficulty, author, status) ",
+    "INSERT INTO submission(owner, repo, title, body, priority, difficulty, author, status) ",
     "VALUES ('", 
-    paste(stringr::str_replace_all(c(title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
+    paste(stringr::str_replace_all(c(owner, repo, title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
     "') RETURNING *;"
   )
   
@@ -58,7 +60,7 @@ judgeIssue <- function(token, id, status, approver, note){
   info <- list(info = info)
   
   if(status == 'approved'){
-    gitRes <- postIssue(token, info$info$title[1], info$info$body[1], info$info$priority[1], info$info$difficulty[1])
+    gitRes <- postIssue(token, info$info$owner[1], info$info$repo[1], info$info$title[1], info$info$author[1], info$info$body[1], info$info$priority[1], info$info$difficulty[1])
     info$gitRes <- gitRes
   }
   
@@ -80,11 +82,13 @@ issues <- function(status){
   return(statuses)
 }
 
-postIssue <- function(token, title, body, priority, difficulty){
+postIssue <- function(token, owner, repo, title, author, body,priority, difficulty){
+  body = paste0(body, " [originally proposed by @", author, "]")
   print('postIssue')
   bdy <- jsonlite::toJSON(list(title = title, body = body, labels = c(priority, difficulty)), auto_unbox = T)
   print(bdy)
-  url = "https://api.github.com/repos/BenjaminOrtizUlloa/ExploreGitAPI/issues"
+  url = paste0("https://api.github.com/repos/", owner, "/", repo, "/issues")
+  print(url)
   tkn = paste('token', token)
   postres <- httr::POST(url, httr::add_headers(Authorization = tkn), body = bdy)
   httr::content(postres)

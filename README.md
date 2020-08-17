@@ -1,12 +1,15 @@
 ### .Renviron file
 
 ```
+RECON_URL_TYPE = "prod"
 RECON_URL_DEV = "http://localhost:8080"
-RECON_URL_PROD = "production-website"
+CLIENT_ID_DEV = ""
+CLIENT_SECRET_DEV = ""
+RECON_URL_PROD = "https://infallible-meitner-feacd3.netlify.app"
+CLIENT_ID_PROD = ""
+CLIENT_SECRET_PROD = ""
 GITHUB_AUTH_ACCESSTOKEN_URL = 'https://github.com/login/oauth/access_token'
-CLIENT_ID = "github-provided-client-id"
-CLIENT_SECRET = "github-provided-client-secret"
-PG_AUTH = "postgres_important_string_connection"
+PG_AUTH = ""
 ```
 
 ### docker launch

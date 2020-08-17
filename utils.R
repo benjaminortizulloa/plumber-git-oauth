@@ -1,8 +1,8 @@
-web_dev <- Sys.getenv("RECON_URL_DEV")
-web_prod <- Sys.getenv("RECON_URL_PROD")
+url_type <- Sys.getenv("RECON_URL_TYPE")
+web = ifelse(url_type == 'dev', Sys.getenv("RECON_URL_DEV") ,Sys.getenv("RECON_URL_PROD"))
 url <- Sys.getenv("GITHUB_AUTH_ACCESSTOKEN_URL")
-id <- Sys.getenv("CLIENT_ID")
-secret <- Sys.getenv("CLIENT_SECRET")
+id <- ifelse(url_type == 'dev', Sys.getenv("CLIENT_ID_DEV"), Sys.getenv("CLIENT_ID_PROD"))
+secret <- ifelse(url_type == 'dev', Sys.getenv("CLIENT_SECRET_DEV"), Sys.getenv("CLIENT_SECRET_PROD"))
 pg_auth <- Sys.getenv("PG_AUTH")
 
 pg <- httr::parse_url(pg_auth)

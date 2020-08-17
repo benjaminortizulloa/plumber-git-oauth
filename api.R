@@ -22,6 +22,8 @@ gitOauth
 getAuthorization
 
 #' @post /submitIssue
+#' @param owner
+#' @param repo
 #' @param title
 #' @param body
 #' @param priority

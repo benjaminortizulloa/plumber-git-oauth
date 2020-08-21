@@ -15,7 +15,7 @@
 # test3 <- getAuthorization('benjaminortizulloa')
  # test4 <- getAuthorization()
 
-pullAuthorization <- function(user){
+pullAuthorization <- function(db_con, user){
   qry <- paste0(
     "SELECT * FROM admin WHERE username = '",
     user,
@@ -32,7 +32,7 @@ pullAuthorization <- function(user){
 addAuthorization <- function(admin, user, type){
   db_con <- connect2DB()
   
-  is_recorded <- nrow(pullAuthorization(user))
+  is_recorded <- nrow(pullAuthorization(db_con, user))
   
   if(is_recorded != 0){
     return("User already exists.")
@@ -79,7 +79,7 @@ getAuthorization <- function(user = ""){
     return(info)
   }
   
-  info <- pullAuthorization(user)
+  info <- pullAuthorization(db_con, user)
   
   if(nrow(info) <= 0){
     auth <- list(user=user, type = "user")

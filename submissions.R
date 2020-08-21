@@ -28,9 +28,9 @@ submitIssue <- function(owner, repo, title, body, priority, difficulty, author){
   db_con <- connect2DB()
   
   qry <- paste0(
-    "INSERT INTO submission(owner, repo, title, body, priority, difficulty, author, status) ",
+    "INSERT INTO submission(owner, repo, title, body, priority, difficulty, author, status, note) ",
     "VALUES ('", 
-    paste(stringr::str_replace_all(c(owner, repo, title, body, priority, difficulty, author, "pending"), "'", "''"),  collapse = "', '"),
+    paste(stringr::str_replace_all(c(owner, repo, title, body, priority, difficulty, author, "pending", " "), "'", "''"),  collapse = "', '"),
     "') RETURNING *;"
   )
   
@@ -74,6 +74,18 @@ issues <- function(status){
   db_con <- connect2DB()
   
   qry <- paste0("SELECT * FROM submission WHERE status = '", status, "'")
+  
+  statuses <- RPostgres::dbGetQuery(db_con, qry)
+  
+  RPostgres::dbDisconnect(db_con)
+  
+  return(statuses)
+}
+
+myIssues <- function(user){
+  db_con <- connect2DB()
+  
+  qry <- paste0("SELECT * FROM submission WHERE author = '", user, "'")
   
   statuses <- RPostgres::dbGetQuery(db_con, qry)
   

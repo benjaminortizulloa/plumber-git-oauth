@@ -16,7 +16,7 @@ PG_AUTH = ""
 
 ```
 docker build -t plumber-test .
-docker run --rm -p 3000:3000 plumber-test
+docker run --rm -p 3000:3000 -d plumber-test
 ```
 
 ### heroku launch

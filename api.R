@@ -16,10 +16,22 @@ cors <- function(res) {
 #' @html
 gitOauth
 
+#' @post /addAuth
+#' @param admin
+#' @param user
+#' @param type
+addAuthorization
+  
 #' @get /auth
 #' @serializer unboxedJSON
 #' @param email
 getAuthorization
+
+#' @post /editAuth
+#' @param admin
+#' @param user
+#' @param type
+editAuthorization
 
 #' @post /submitIssue
 #' @param owner
@@ -42,6 +54,10 @@ judgeIssue
 #' @get /issues
 #' @param status
 issues
+
+#' @get /myIssues
+#' @param user
+myIssues
 
 #' @serializer unboxedJSON
 #' @get /test

@@ -1,14 +1,17 @@
 # submissions <- tibble::tibble(
-#   owner = character(0),
-#   repo = character(0),
 #   title = character(0),
-#   body = character(0),
-#   priority = character(0),
-#   difficulty = character(0),
 #   author = character(0),
+#   body = character(0),
+#   impact = character(0),
+#   timeline = character(0),
+#   priority = character(0),
+#   complexity = character(0),
+#   assignees = character(0),
+#   repo = character(0),
 #   status = character(0),
 #   approver = character(0),
-#   note = character(0)
+#   note = character(0),
+#   url = character(0)
 # )
 # 
 # db_con <- connect2DB()
@@ -20,17 +23,35 @@
 # RPostgres::dbReadTable(db_con, 'submission')
 # RPostgres::dbRemoveTable(db_con, "submission")
 # 
-# test <- submitIssue("benjaminortizulloa", "ExploreGitAPI", 'myTitle', 'myBody', 'myPriority', 'myDifficulty', 'beemyfriend')
-# test2 <- judgeIssue('36d5c2d9b392749d5995938d7c39031b577cc42d', 1, 'approved', 'benjaminortizulloa', 'approvingnow')
+# test <- submitIssue(title = 'myTitle',
+#                     author = 'beemyfriend',
+#                     body = 'myBody',
+#                     impact = "impact",
+#                     timeline = "timeline",
+#                     priority = 'Priority_Low',
+#                     complexity = 'Complexity_Low',
+#                     assignees = 'beemyfriend',
+#                     repo = "ExploreGitAPI")
+# 
+# test2 <- judgeIssue('0bd90cf7bd33424cf726e899dc591a1cd9fca443', 1, 'approved', 'beemyfriend', 'approvingnow')
 
 # submit issue for admins to approve
-submitIssue <- function(owner, repo, title, body, priority, difficulty, author){
+submitIssue <- function(title,
+                        author,
+                        body,
+                        impact,
+                        timeline,
+                        priority,
+                        complexity,
+                        assignees,
+                        repo
+                        ){
   db_con <- connect2DB()
-  
+  print(c(title, author, body, impact, timeline, priority, complexity, assignees, repo, "pending", " "))
   qry <- paste0(
-    "INSERT INTO submission(owner, repo, title, body, priority, difficulty, author, status, note) ",
+    "INSERT INTO submission(title, author, body, impact, timeline, priority, complexity, assignees, repo, status, note) ",
     "VALUES ('", 
-    paste(stringr::str_replace_all(c(owner, repo, title, body, priority, difficulty, author, "pending", " "), "'", "''"),  collapse = "', '"),
+    paste(stringr::str_replace_all(c(title, author, body, impact, timeline, priority, complexity, assignees, repo, "pending", " "), "'", "''"),  collapse = "', '"),
     "') RETURNING *;"
   )
   
@@ -60,8 +81,29 @@ judgeIssue <- function(token, id, status, approver, note){
   info <- list(info = info)
   
   if(status == 'approved'){
-    gitRes <- postIssue(token, info$info$owner[1], info$info$repo[1], info$info$title[1], info$info$author[1], info$info$body[1], info$info$priority[1], info$info$difficulty[1])
+    bdy <- paste(info$info$body[1], 
+                 paste0("[impact: ", info$info$impact[1], "]"), 
+                 paste0("[timeline: ", info$info$timeline[1], "]" ),
+                 paste0("[originally proposed by @", info$info$author[1], "]"),
+                 paste0("[suggested repo: ", info$info$repo[1], "]"),
+                 paste0("[additional notes: ", info$info$note[1], "]"),
+                 sep = "\n\n")
+    
+    gitRes <- postIssue(token, info$info$title[1], bdy, info$info$priority[1], info$info$complexity[1], info$info$assignees[1])
+    
     info$gitRes <- gitRes
+    
+    qry <- paste0(
+      "UPDATE submission ",
+      "SET url = '", gitRes$html_url[1],"', ",
+      "last_update = current_timestamp ",
+      "WHERE id = ", id," RETURNING *;"
+    )
+    
+    print('update url')
+    print(qry)
+    
+    info$info <- RPostgres::dbGetQuery(db_con, qry)
   }
   
   RPostgres::dbDisconnect(db_con)
@@ -94,13 +136,26 @@ myIssues <- function(user){
   return(statuses)
 }
 
-postIssue <- function(token, owner, repo, title, author, body,priority, difficulty){
-  body = paste0(body, " [originally proposed by @", author, "]")
+postIssue <- function(token,title, body, priority, complexity, assignees){
+  #eventually assign task to assigned repos, but for now we will use benjaminortizulloa/ExploreGitAPI
+  owner = "benjaminortizulloa"
+  repo = "ExploreGitAPI"
   print('postIssue')
-  bdy <- jsonlite::toJSON(list(title = title, body = body, labels = c(priority, difficulty)), auto_unbox = T)
+  
+  bdy <- list(title = title, body = body, labels = c(priority, complexity))
+  
+  if(assignees != "__NONE__"){
+    bdy$assignees = list(assignees)
+  }
+  
+  bdy <- jsonlite::toJSON(bdy, auto_unbox = T)
+  
+  print('body')
   print(bdy)
+  
   url = paste0("https://api.github.com/repos/", owner, "/", repo, "/issues")
   print(url)
+  
   tkn = paste('token', token)
   postres <- httr::POST(url, httr::add_headers(Authorization = tkn), body = bdy)
   httr::content(postres)

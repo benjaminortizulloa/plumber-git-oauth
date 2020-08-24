@@ -144,7 +144,7 @@ postIssue <- function(token,title, body, priority, complexity, assignees){
   
   bdy <- list(title = title, body = body, labels = c(priority, complexity))
   
-  if(assignees != "__NONE__"){
+  if(assignees != "Do not know"){
     bdy$assignees = list(assignees)
   }
   

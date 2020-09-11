@@ -2,3 +2,4 @@
 .Rhistory
 .Renviron
 .DS_Store
+backup/*.csv

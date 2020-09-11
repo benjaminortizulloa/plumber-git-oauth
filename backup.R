@@ -4,7 +4,7 @@ backup_db <- function(){
   tbls <- RPostgres::dbListTables(db_con)
   
   lapply(tbls, function(nm){
-    tbl <- RPostgres::dbReadTable(db_con, 'submission')
+    tbl <- RPostgres::dbReadTable(db_con, nm)
     readr::write_csv(tbl, paste0('backup/', now, '_', nm, '.csv'))
   })
 }

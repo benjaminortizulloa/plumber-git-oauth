@@ -65,7 +65,7 @@ submitIssue <- function(title,
 }
 
 # approve or reject submitted issues
-judgeIssue <- function(token, id, status, approver, note){
+judgeIssue <- function(token, id, status, approver, note, complexity, priority, repo){
   db_con <- connect2DB()
   
   qry <- paste0(
@@ -73,6 +73,9 @@ judgeIssue <- function(token, id, status, approver, note){
     "SET status = '", status,"', ",
     "approver = '", approver,"', ",
     "note = '", stringr::str_replace_all(note, "'", "''"),"', ",
+    "complexity = '", complexity, "', ",
+    "priority = '", priority, "', ",
+    "repo = '", repo, "', ",
     "last_update = current_timestamp ",
     "WHERE id = ", id," RETURNING *;"
   )

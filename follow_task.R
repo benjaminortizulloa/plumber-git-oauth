@@ -55,6 +55,9 @@ serveTasks <- function(user=NA){
   res <- httr::GET('https://api.github.com/repos/BenjaminOrtizUlloa/ExploreGitAPI/issues')
   cnt <- httr::content(res)
   tasks <- parseIssues(cnt)
+  rank_score <- RPostgres::dbGetQuery(db_con, "SELECT issue_id, score FROM rank_score")
+  tasks <- dplyr::left_join(tasks, rank_score, by = c('id' = 'issue_id'))
+  tasks <- dplyr::arrange(tasks, desc(score))
   
   if(!is.na(user)){
     qry_follow <- paste0(
@@ -71,17 +74,15 @@ serveTasks <- function(user=NA){
     
     following <- RPostgres::dbGetQuery(db_con, qry_follow)
     votes <- RPostgres::dbGetQuery(db_con, qry_vote)
-    rank_score <- RPostgreSQL::dbGetQuery(db_con, "SELECT issue_id, score FROM rank_score")
     
     tasks <- dplyr::left_join(tasks, following, by = c('id' = 'issue_id'))
     tasks <- dplyr::left_join(tasks, votes, by = c("id" = "issue_id"))
-    tasks <- dplyr::left_join(tasks, rank_score, by = c('id' = 'issue_id'))
+
     tasks <- dplyr::mutate(
       tasks, 
       status = replace(status, is.na(status), F),
       vote = replace(vote, is.na(vote), F)
     )
-    tasks <- dplyr::arrange(tasks, desc(score))
   }
   
   return(tasks)

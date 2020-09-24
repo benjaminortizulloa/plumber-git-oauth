@@ -5,6 +5,7 @@ source('git_oauth.R')
 source('auth_db.R')
 source('submissions.R')
 source('follow_task.R')
+source('vote_task.R')
 
 #* @filter cors
 cors <- function(res) {
@@ -76,6 +77,12 @@ serveTasks
 #' @param username
 #' @param status
 followTasks
+
+#' @get /vote
+#' @param issue_id
+#' @param username
+#' @param vote
+voteTasks
 
 #' @serializer unboxedJSON
 #' @get /test

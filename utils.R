@@ -21,3 +21,10 @@ connect2DB <- function(){
 sanityCheck <- function(){
   return('sanity check')
 }
+
+base_scores <- c(
+  "Priority Low" = 10,
+  "Priority Medium" = 30,
+  "Priority High" = 50,
+  "Priority Urgent" = 70
+)

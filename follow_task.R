@@ -12,6 +12,8 @@
 # RPostgres::dbGetQuery(db_con, "alter table following add created_on timestamp default current_timestamp")
 # RPostgres::dbGetQuery(db_con, "alter table following add last_update timestamp default current_timestamp")
 # RPostgres::dbReadTable(db_con, 'following')
+# RPostgres::dbDisconnect(db_con)
+
 
 parseIssues <- function(dta) {
   tasks <- lapply(dta, function(x){
@@ -55,16 +57,31 @@ serveTasks <- function(user=NA){
   tasks <- parseIssues(cnt)
   
   if(!is.na(user)){
-    qry <- paste0(
+    qry_follow <- paste0(
       "SELECT issue_id, status FROM following WHERE username = '",
       user,
       "'"
     )
     
-    following <- RPostgres::dbGetQuery(db_con, qry)
+    qry_vote <- paste0(
+      "SELECT issue_id, vote FROM votes WHERE username = '",
+      user, 
+      "'"
+    )
+    
+    following <- RPostgres::dbGetQuery(db_con, qry_follow)
+    votes <- RPostgres::dbGetQuery(db_con, qry_vote)
+    rank_score <- RPostgreSQL::dbGetQuery(db_con, "SELECT issue_id, score FROM rank_score")
     
     tasks <- dplyr::left_join(tasks, following, by = c('id' = 'issue_id'))
-    tasks <- dplyr::mutate(tasks, status = replace(status, is.na(status), F))
+    tasks <- dplyr::left_join(tasks, votes, by = c("id" = "issue_id"))
+    tasks <- dplyr::left_join(tasks, rank_score, by = c('id' = 'issue_id'))
+    tasks <- dplyr::mutate(
+      tasks, 
+      status = replace(status, is.na(status), F),
+      vote = replace(vote, is.na(vote), F)
+    )
+    tasks <- dplyr::arrange(tasks, desc(score))
   }
   
   return(tasks)
@@ -88,4 +105,3 @@ followTasks <- function(issue_id, username, status){
   RPostgres::dbDisconnect(db_con)
   return(following)
 }
-
